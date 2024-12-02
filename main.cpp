@@ -14,6 +14,49 @@ using namespace std;
 
 
 constexpr int SIZE = 5;
+//UNUSED FUNCTION!!!!!
+/*
+struct Node{
+    float time;
+    Node* next;
+};
+
+class Linkedlist{ 
+    Node* head = NULL;
+    Node* tail = NULL;
+    public:
+    void addhead(float time){
+        if(head == NULL){
+            head = new Node;
+            head->next = NULL;
+            head->time = time;
+            tail = head;
+        }
+        else{
+            Node* newnode = new Node;
+            newnode->time = time;
+            newnode->next = head;
+            head = newnode;
+        }
+    }
+
+    void addtail(float time){
+        if(tail == NULL){
+            tail = new Node;
+            tail->next = NULL;
+            tail->time = time;
+            head = tail;
+        }
+        else{
+            Node* newnode = new Node;
+            newnode->time = time;
+            newnode->next = NULL;
+            tail->next = newnode;
+            tail = newnode;
+        }
+    }
+};
+*/
 
 class stack {
     private:
