@@ -67,7 +67,7 @@ class Linkedlist{
     }
 };
 */
-
+/*
 class Queue {
     Linkedlist list;
     public:
@@ -127,6 +127,50 @@ class Queue {
         delete temp;
     }
 };
+*/
+
+
+/*
+struct NodeT{
+    float time;
+    NodeT* left;
+    NodeT* right;
+}
+
+class BinarySearchTree{
+    NodeT* root;
+    public:
+    BinarySearchTree(){
+        root = NULL;
+    }
+    void Insert(float time){
+        root = insertHelper(root, time);
+    }
+    NodeT* insertHelper(NodeT* node, float time){
+        if(node == NULL){
+            node = new NodeT;
+            node->time = time;
+            node->left = node->right = NULL;
+        }
+        else if(time < node->time){
+            node->left = insertHelper(node->left, time);
+        }
+        else if(time > node->time){
+            node->right = insertHelper(node->right, time);
+        }
+        return node;
+    }
+
+    void AscendingOutput(){
+        if(root == NULL){
+            return;
+        }
+        AscendingOutput(root->left);
+        cout << root->time << " ";
+        AscendingOutput(root->right);
+    }
+};
+*/
 
 class stack {
     private:
