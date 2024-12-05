@@ -3,9 +3,10 @@
 #include <raylib.h> 
 #include <iostream>
 #include <vector>
-#include <cstring>
-#include <fstream>
+#include <string>
 
+constexpr int SIZE = 5;
+constexpr int TILE_SIZE = 50;
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -234,16 +235,22 @@ public:
     
 };
 
-int playerX = 1, playerY = 1;
-int goalX = SIZE - 2, goalY = SIZE - 2;
-float timer = 0.0f;
-bool gameWon = false;
-bool startScreen = true;
-char playerName[20] = "";
+struct Player
+{
+    int x, y;
+};
 
-void MapDefine();
+//int playerX = 1, playerY = 1;
+//int goalX = SIZE - 2, goalY = SIZE - 2;
+//float timer = 0.0f;
+//bool gameWon = false;
+//bool startScreen = true;
+//char playerName[20] = "";
+
+void LoadMaze();
 void DrawMaze();
 void HandlePlayerMovement();
+void DrawGameInfo();
 void ResetGame();
 
 int main() {
@@ -251,7 +258,6 @@ int main() {
     InitWindow(SIZE * TILE_SIZE, SIZE * TILE_SIZE, "Maze Search Visualization");
     SetTargetFPS(10);
 
-    MapDefine();
 
     vector<vector<int>> maze =
     { 
@@ -300,3 +306,22 @@ CloseWindow();
 
     return 0;
 };
+
+
+void HandlePlayerMovement() {  // // Handle player movement with arrow keys
+    if (IsKeyPressed(KEY_UP) && maze[player.y - 1][player.x] != 1) player.y--;  // // Up movement
+    if (IsKeyPressed(KEY_DOWN) && maze[player.y + 1][player.x] != 1) player.y++;  // // Down movement
+    if (IsKeyPressed(KEY_LEFT) && maze[player.y][player.x - 1] != 1) player.x--;  // // Left movement
+    if (IsKeyPressed(KEY_RIGHT) && maze[player.y][player.y + 1] != 1) player.x++;  // // Right movement
+};
+
+
+void DrawGameInfo() {
+    DrawText(TextFormat("Player Position: (%d, %d)", player.x, player.y), 10, 10, 20, TEXT_COLOR);
+    DrawText("Use arrow keys to move", 10, 30, 20, TEXT_COLOR);
+};
+
+void ResetGame() {  // // Reset game state
+  
+  player = {1,1};
+  };
