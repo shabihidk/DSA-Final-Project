@@ -5,9 +5,6 @@
 #include <vector>
 #include <string>
 
-constexpr int SIZE = 5;
-constexpr int TILE_SIZE = 50;
-
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int MAZE_WIDTH = 20;
@@ -15,6 +12,7 @@ const int MAZE_HEIGHT = 15;
 const int CELL_SIZE = 40;
 const int TILE_SIZE = 50;
 
+constexpr int SIZE = 5;
 
 
 using namespace std;
@@ -26,7 +24,6 @@ const Color TEXT_COLOR = BLACK;
 const Color GOAL_COLOR = RED;
 
 
-constexpr int SIZE = 5;
 //UNUSED FUNCTION!!!!!
 /*
 struct Node{
@@ -240,15 +237,26 @@ struct Player
     int x, y;
 };
 
+Player player = {1, 1};
+
+
+vector<vector<int>> maze = {
+    {1, 1, 1, 1, 1},
+    {1, 5, 5, 5, 1},
+    {1, 5, 1, 9, 1},
+    {1, 1, 1, 5, 1},
+    {4, 5, 1, 1, 1}
+};
+
+
 //int playerX = 1, playerY = 1;
 //int goalX = SIZE - 2, goalY = SIZE - 2;
-//float timer = 0.0f;
-//bool gameWon = false;
-//bool startScreen = true;
-//char playerName[20] = "";
+float timer = 0.0f;
+bool gameWon = false;
+bool startScreen = true;
+char playerName[20] = "";
 
-void LoadMaze();
-void DrawMaze();
+
 void HandlePlayerMovement();
 void DrawGameInfo();
 void ResetGame();
@@ -273,30 +281,20 @@ Search search(maze);
 
 
 while(!WindowShouldClose())
-{
-    BeginDrawing();
-    ClearBackground();
+{ BeginDrawing();
+        ClearBackground(BACKGROUND_COLOR);
 
-    if(startScreen)
-
-    {
-        DrawText("MAZE GAME", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 40, TEXT_COLOR);
+        if (startScreen) {
+            DrawText("MAZE GAME", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 40, TEXT_COLOR);
             DrawText("Press ENTER to Start", SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2, 20, TEXT_COLOR);
-            if (IsKeyPressed(KEY_ENTER)) startScreen = false;  
+            if (IsKeyPressed(KEY_ENTER)) startScreen = false;
         } else {
-            timer += GetFrameTime();  
+            timer += GetFrameTime();
             HandlePlayerMovement();
-            DrawMaze();               
-            DrawText(TextFormat("Time: %.2f seconds", timer), 10, 10, 20, TEXT_COLOR); 
-        }
-
-        search.searchstep();
-
-        if (search.isSearchComplete())
-        {
+            search.searchstep();
             search.DrawMaze();
-        };
-    
+            DrawGameInfo();
+        }
    EndDrawing();
    };
 
@@ -317,11 +315,13 @@ void HandlePlayerMovement() {  // // Handle player movement with arrow keys
 
 
 void DrawGameInfo() {
-    DrawText(TextFormat("Player Position: (%d, %d)", player.x, player.y), 10, 10, 20, TEXT_COLOR);
-    DrawText("Use arrow keys to move", 10, 30, 20, TEXT_COLOR);
+       DrawText(TextFormat("Player Position: (%d, %d)", player.x, player.y), 10, 10, 20, TEXT_COLOR);
+    DrawText(TextFormat("Time: %.2f seconds", timer), 10, 30, 20, TEXT_COLOR);
 };
 
 void ResetGame() {  // // Reset game state
-  
-  player = {1,1};
+    player = {1, 1};
+    timer = 0.0f;
+    startScreen = true;
+    gameWon = false;
   };
