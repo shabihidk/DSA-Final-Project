@@ -29,11 +29,11 @@ const Color GOAL_COLOR = RED;
 struct Node{
     float time;
     Node* next;
+    Node* head = NULL;
+    Node* tail = NULL;
 };
 
 class Linkedlist{ 
-    Node* head = NULL;
-    Node* tail = NULL;
     public:
     void addhead(float time){
         if(head == NULL){
@@ -67,6 +67,66 @@ class Linkedlist{
     }
 };
 */
+
+class Queue {
+    Linkedlist list;
+    public:
+    void Enqueue(float time) {
+        list.addtail(time);
+    }
+    Node* Search(float key) {
+        Node* temp = list.head;
+        while(temp!= NULL && temp->time!= key){
+            temp = temp->next;
+        }
+        if(temp == NULL){
+            return NULL;
+        }
+        else{
+            if(temp == list.head){
+                list.head = temp->next;
+            }
+            else{
+                Node* prev = list.head;
+                while(prev->next!= temp){
+                    prev = prev->next;
+                }
+                prev->next = temp->next;
+            }
+            return temp;
+        }
+    }
+    void Remove(float key) {
+        Node* temp = search(key);
+        if(temp!= NULL){
+            if(temp == list.head){
+                list.head = temp->next;
+            }
+            else{
+                Node* prev = list.head;
+                while(prev->next!= temp){
+                    prev = prev->next;
+                }
+                prev->next = temp->next;
+            }
+            delete temp;
+        }
+        else{
+            cout << "Key not found in the queue" << endl;
+        }
+    }
+
+    void Dequeue(){
+        if(list.head == NULL){
+            cout << "Queue is empty" << endl;
+            return;
+        }
+        Node* temp = list.head;
+        cout << "Dequeued: " << temp->time << endl;
+        list.head = temp->next;
+        delete temp;
+    }
+};
 
 class stack {
     private:
