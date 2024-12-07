@@ -23,10 +23,8 @@ const Color PLAYER_COLOR = BLUE;
 const Color TEXT_COLOR = BLACK;
 const Color GOAL_COLOR = RED;
 
-
-//UNUSED FUNCTION!!!!!
-/*
 struct Node{
+    string name;
     float time;
     Node* next;
     Node* head = NULL;
@@ -35,46 +33,62 @@ struct Node{
 
 class Linkedlist{ 
     public:
-    void addhead(float time){
+    void AddHead(float time, string name){
         if(head == NULL){
             head = new Node;
             head->next = NULL;
             head->time = time;
+            head->name = name;
             tail = head;
         }
         else{
             Node* newnode = new Node;
             newnode->time = time;
             newnode->next = head;
+            newnode->name = name;
             head = newnode;
         }
     }
 
-    void addtail(float time){
+    void AddTail(float time, string name){
         if(tail == NULL){
             tail = new Node;
             tail->next = NULL;
             tail->time = time;
+            tail->name = name;
             head = tail;
         }
         else{
             Node* newnode = new Node;
             newnode->time = time;
+            newnode->name = name;
             newnode->next = NULL;
             tail->next = newnode;
             tail = newnode;
         }
     }
+
+    void Display(){
+        if(head == NULL){
+            cout << "empty" << endl;
+            return;
+        }
+        Node* temp = head;
+        while(temp!= NULL){
+            cout << temp->name << " : " << temp->time << " seconds" << endl;
+            temp = temp->next;
+        }
+        cout << endl;
+    }
 };
-*/
-/*
+
 class Queue {
     Linkedlist list;
     public:
-    void Enqueue(float time) {
-        list.addtail(time);
+    void Enqueue(float time, string name) {
+        list.AddTail(time, name);
     }
-    Node* Search(float key) {
+    Node* Search(string key) {
         Node* temp = list.head;
         while(temp!= NULL && temp->time!= key){
             temp = temp->next;
@@ -96,7 +110,7 @@ class Queue {
             return temp;
         }
     }
-    void Remove(float key) {
+    void Remove(string key) {
         Node* temp = search(key);
         if(temp!= NULL){
             if(temp == list.head){
@@ -126,13 +140,17 @@ class Queue {
         list.head = temp->next;
         delete temp;
     }
+    void Display(){
+        list.Display();
+    }
 };
-*/
 
 
-/*
+
+
 struct NodeT{
     float time;
+    string name;
     NodeT* left;
     NodeT* right;
 }
@@ -144,33 +162,76 @@ class BinarySearchTree{
         root = NULL;
     }
     void Insert(float time){
-        root = insertHelper(root, time);
+        root = insertHelper(root, time, name);
     }
-    NodeT* insertHelper(NodeT* node, float time){
+    NodeT* insertHelper(NodeT* node, float time, string name){
         if(node == NULL){
             node = new NodeT;
             node->time = time;
+            node->name = name;
             node->left = node->right = NULL;
         }
         else if(time < node->time){
-            node->left = insertHelper(node->left, time);
+            node->left = insertHelper(node->left, time, name);
         }
         else if(time > node->time){
-            node->right = insertHelper(node->right, time);
+            node->right = insertHelper(node->right, time, name);
         }
         return node;
     }
 
-    void AscendingOutput(){
+    void DescendingOutput(){
         if(root == NULL){
             return;
         }
-        AscendingOutput(root->left);
-        cout << root->time << " ";
-        AscendingOutput(root->right);
-    }
+        DescendingOutput(root->right);
+        cout << root->name << " "<< root->time<<" ";
+        DescendingOutput(root->left);
+        }
 };
-*/
+
+
+void LeaderboardDisplay(){
+    ifstream file("leaderboard.txt");
+    string name;
+    float time;
+    int choice;
+    cout << "choose data structure" << endl;
+    cout << "1. Queue" << endl;
+    cout << "2. Linked List" << endl;
+    cout << "3. Binary Search Tree" << endl;
+    cout << "Enter your choice: ";
+    cin >> choice;
+    switch(choice){
+        case 1:
+            Queue q;
+            while(file >> name >> time){
+                q.Enqueue(time, name);
+            }
+            q.Display();
+            break;
+            
+        case 2:
+            Linkedlist l;
+            while(file >> name >> time){
+                l.AddHead(time, name);
+            }
+            l.Display();
+            break;
+            
+        case 3:
+            BinarySearchTree bst;
+            while(file >> name >> time){
+                bst.Insert(time);
+            }
+            bst.DescendingOutput();
+            break;
+            
+        default:
+            cout << "Invalid choice" << endl;
+            break;
+    }
+}
 
 class stack {
     private:
