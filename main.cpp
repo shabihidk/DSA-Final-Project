@@ -3,16 +3,18 @@
 #include <raylib.h> 
 #include <iostream>
 #include <vector>
-#include <string>
+#include <cstring>
+#include <fstream>
+#include <algorithm>
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int MAZE_WIDTH = 20;
 const int MAZE_HEIGHT = 15;
 const int CELL_SIZE = 40;
-const int TILE_SIZE = 50;
+//const int TILE_SIZE = 50;
 
-constexpr int SIZE = 5;
+//constexpr int SIZE = 5;
 
 
 using namespace std;
@@ -21,87 +23,145 @@ const Color BACKGROUND_COLOR = (Color){ 200, 230, 201, 255 };  // Light pastel g
 const Color MAZE_COLOR = DARKGREEN;
 const Color PLAYER_COLOR = BLUE;
 const Color TEXT_COLOR = BLACK;
+const Color WIN_SCREEN_COLOR = Fade(BLACK, 0.7f);
+const Color BUTTON_COLOR = (Color){ 255, 235, 59, 255 };
 const Color GOAL_COLOR = RED;
+
+
+
+// LINKED LIST
 
 struct Node{
     string name;
     float time;
     Node* next;
-    Node* head = NULL;
-    Node* tail = NULL;
+
+    Node(float t, const string& n) :  name(n), time(t), next(nullptr) {};
 };
 
 class Linkedlist{ 
+    private:
+
+    Node* head = nullptr;
+    Node* tail = nullptr;
+
     public:
+
     void AddHead(float time, string name){
-        if(head == NULL){
-            head = new Node;
-            head->next = NULL;
-            head->time = time;
-            head->name = name;
-            tail = head;
+        Node* newNode = new Node(time,name);
+        if(head == nullptr)
+        {
+            head = tail = newNode;
+            tail->next = head;
         }
-        else{
-            Node* newnode = new Node;
-            newnode->time = time;
-            newnode->next = head;
-            newnode->name = name;
-            head = newnode;
+        else 
+        {
+            newNode->next = head;
+            head = newNode;
         }
-    }
+    };
 
     void AddTail(float time, string name){
-        if(tail == NULL){
-            tail = new Node;
-            tail->next = NULL;
-            tail->time = time;
-            tail->name = name;
-            head = tail;
+        Node* newNode = new Node(time, name);
+
+        if(!tail){
+            head = newNode;
         }
         else{
-            Node* newnode = new Node;
-            newnode->time = time;
-            newnode->name = name;
-            newnode->next = NULL;
-            tail->next = newnode;
-            tail = newnode;
+           
+            tail->next = newNode;
         }
+            tail = newNode;
     }
 
     void Display(){
-        if(head == NULL){
-            cout << "empty" << endl;
+        if(head == nullptr){
+            cerr << "Empty List" << endl;
             return;
         }
         Node* temp = head;
-        while(temp!= NULL){
+        while(temp){
             cout << temp->name << " : " << temp->time << " seconds" << endl;
             temp = temp->next;
         }
-        cout << endl;
     }
-};
 
-class Queue {
-    Linkedlist list;
-    public:
-    void Enqueue(float time, string name) {
-        list.AddTail(time, name);
+    Node* GetHead() const
+    {
+        return head;
+    };
+
+     Node* GetTail() const {
+        return tail;
     }
-    Node* Search(string key) {
-        Node* temp = list.head;
-        while(temp!= NULL && temp->time!= key){
+
+   void RemoveHead() {
+        if (!head) return;
+
+        Node* temp = head;
+        head = head->next;
+        
+        delete temp;
+    };
+
+    void RemoveTail()
+    {
+        if(!head) return;
+
+        Node* temp2 = tail;
+        Node* temp = head;
+        
+        while(temp->next != tail)
+        {
             temp = temp->next;
         }
-        if(temp == NULL){
+
+        temp->next = nullptr;
+        tail = temp->next;
+
+        delete temp2;
+        
+    };
+
+    void SetTail(Node* newTail) {
+        tail->next = newTail;
+        tail = newTail;
+    };
+};
+
+class Queue 
+{
+    private:
+
+    Linkedlist list;
+
+    public:
+
+    void Enqueue(float time, string name) 
+    {
+        list.AddTail(time, name);
+    }
+
+    Node* Search(string key) 
+    {
+        Node* temp = list.GetHead();
+        while(temp!= nullptr && temp->name != key)
+        {
+            temp = temp->next;
+        }
+
+        if(temp == nullptr){
             return NULL;
         }
-        else{
-            if(temp == list.head){
-                list.head = temp->next;
+
+        else
+        {
+            if(temp == list.GetHead()){
+                list.RemoveHead();
             }
-            else{
-                Node* prev = list.head;
+            else
+            {
+                Node* prev = list.GetHead();
                 while(prev->next!= temp){
                     prev = prev->next;
                 }
@@ -110,53 +170,84 @@ class Queue {
             return temp;
         }
     }
-    void Remove(string key) {
-        Node* temp = search(key);
-        if(temp!= NULL){
-            if(temp == list.head){
-                list.head = temp->next;
-            }
-            else{
-                Node* prev = list.head;
-                while(prev->next!= temp){
-                    prev = prev->next;
-                }
-                prev->next = temp->next;
-            }
-            delete temp;
-        }
-        else{
-            cout << "Key not found in the queue" << endl;
-        }
+    void RemoveNode(const string& key) {
+    if (!list.GetHead()) {
+        cout << "List is empty, nothing to remove." << endl;
+        return;
     }
 
+    Node* temp = list.GetHead();
+    Node* prev = nullptr;
+
+    while (temp && temp->name != key) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (!temp) {
+
+        cout << "Key not found in the list." << endl;
+        return;
+    }
+
+    if (temp == list.GetHead()) {
+        list.RemoveHead(); 
+    } else {
+        prev->next = temp->next;
+        if (temp == list.GetTail()) {
+
+            list.SetTail(prev);
+        }
+        delete temp;
+    }
+
+    cout << "Node with key \"" << key << "\" removed successfully." << endl;
+}
+
     void Dequeue(){
-        if(list.head == NULL){
+
+        if(list.GetHead() == NULL){
             cout << "Queue is empty" << endl;
             return;
         }
-        Node* temp = list.head;
-        cout << "Dequeued: " << temp->time << endl;
-        list.head = temp->next;
-        delete temp;
-    }
+        cout << "Dequeued: " << list.GetHead()->name << endl;
+        list.RemoveHead();
+    };
+
     void Display(){
         list.Display();
-    }
+    };
 };
 
 
 
 
-struct NodeT{
+struct NodeT
+{
     float time;
     string name;
     NodeT* left;
     NodeT* right;
-}
+
+       NodeT(float t, const string& n) : time(t), name(n), left(nullptr), right(nullptr) {}
+};
 
 class BinarySearchTree{
-    NodeT* root;
+    NodeT* root = nullptr;
+    
+   NodeT* InsertHelper(NodeT* node, float time, const string& name) {
+    if (!node) {
+        // Create a new NodeT using the constructor
+        return new NodeT(time, name);
+    }
+    if (time < node->time) {
+        node->left = InsertHelper(node->left, time, name);
+    } else if (time > node->time) {
+        node->right = InsertHelper(node->right, time, name);
+    }
+    return node;
+}
+
     public:
     BinarySearchTree(){
         root = NULL;
