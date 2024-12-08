@@ -35,7 +35,7 @@ struct Node{
     float time;
     Node* next;
 
-    Node(float t, const string& n) :  name(n), time(t), next(nullptr) {};
+    Node(float t, string n) :  name(n), time(t), next(nullptr) {};
 };
 
 class Linkedlist{ 
@@ -285,6 +285,24 @@ class BinarySearchTree{
     
 };
 
+//stack with linked list
+
+class Stack_List{
+    Linkedlist s;
+    
+    public:
+    void push(float time, string name){
+        s.AddHead(time, name);
+    }
+    void pop(){
+        s.RemoveHead();
+    }
+
+    void display(){
+        s.Display();
+    }
+};
+
 // LEADERBOARD FUNCTIONS
 
 void LeaderboardDisplay(){
@@ -296,6 +314,9 @@ void LeaderboardDisplay(){
     cout << "1. Queue" << endl;
     cout << "2. Linked List" << endl;
     cout << "3. Binary Search Tree" << endl;
+    cout << "4. Stack with Linked List" << endl;
+    cin >> choice;
+    switch(choice){
     cout << "Enter your choice: ";
     cin >> choice;
     switch(choice){
@@ -322,6 +343,14 @@ void LeaderboardDisplay(){
             }
             bst.DOhelper();
             break;
+        
+        case 4:
+        Stack_List sl;
+        while(file >> name >> time){
+                sl.push(time, name);
+            }
+        sl.display();
+        break;
             
         default:
             cout << "Invalid choice" << endl;
