@@ -1,5 +1,5 @@
 // Small maze with 1 for free space, 5 for visited/blocked spaces, and 9 for the exit.
-
+#include <raylib.h>
 #include <iostream>
 #include <vector>
 #include <cstring>
