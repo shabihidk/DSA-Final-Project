@@ -1,6 +1,5 @@
 // Small maze with 1 for free space, 5 for visited/blocked spaces, and 9 for the exit.
 
-#include <raylib.h> 
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -230,37 +229,48 @@ struct NodeT
     NodeT* left;
     NodeT* right;
 
-       NodeT(float t, const string& n) : time(t), name(n), left(nullptr), right(nullptr) {}
+       NodeT(float t, string n) : time(t), name(n), left(nullptr), right(nullptr) {}
 };
 
 class BinarySearchTree{
-    NodeT* root = nullptr;
     
-   NodeT* InsertHelper(NodeT* node, float time, const string& name) {
+    NodeT* root = nullptr;
+
+    void DescendingOutput(NodeT* root){
+        if(root == NULL){
+            return;
+        }
+        DescendingOutput(root->right);
+        cout << root->name << " "<< root->time<<" ";
+        DescendingOutput(root->left);
+    }
+
+   NodeT* InsertHelper(NodeT* node, float time, string name) {
     if (!node) {
         // Create a new NodeT using the constructor
         return new NodeT(time, name);
     }
     if (time < node->time) {
         node->left = InsertHelper(node->left, time, name);
-    } else if (time > node->time) {
+    } 
+    else {
         node->right = InsertHelper(node->right, time, name);
     }
     return node;
 }
-
     public:
+    void DOhelper(){
+        DescendingOutput(root);
+    }
     BinarySearchTree(){
         root = NULL;
     }
-    void Insert(float time){
+    void Insert(float time, string name){
         root = insertHelper(root, time, name);
     }
     NodeT* insertHelper(NodeT* node, float time, string name){
         if(node == NULL){
-            node = new NodeT;
-            node->time = time;
-            node->name = name;
+            node = new NodeT(time, name);
             node->left = node->right = NULL;
         }
         else if(time < node->time){
@@ -272,14 +282,7 @@ class BinarySearchTree{
         return node;
     }
 
-    void DescendingOutput(){
-        if(root == NULL){
-            return;
-        }
-        DescendingOutput(root->right);
-        cout << root->name << " "<< root->time<<" ";
-        DescendingOutput(root->left);
-        }
+    
 };
 
 // LEADERBOARD FUNCTIONS
@@ -315,9 +318,9 @@ void LeaderboardDisplay(){
         case 3:
             BinarySearchTree bst;
             while(file >> name >> time){
-                bst.Insert(time);
+                bst.Insert(time, name);
             }
-            bst.DescendingOutput();
+            bst.DOhelper();
             break;
             
         default:
@@ -331,7 +334,7 @@ void LeaderboardDisplay(){
 class stack {
     private:
     
-    pair<int, int> arr[SIZE * SIZE];
+    pair<int, int> arr[100];
     int top;
 
 
@@ -343,7 +346,7 @@ class stack {
 
     void push(pair<int,int> value)
     {
-        if (top >= SIZE * SIZE - 1)
+        if (top >= 100 - 1)
         {
             cout << "Stack Full!" << endl;
             return;
@@ -537,7 +540,6 @@ void LoadLeaderboard();
 
 void DrawMaze();
 void HandlePlayerMovement();
-void DrawGameInfo();
 void ResetGame();
 
 int main() {
@@ -613,23 +615,68 @@ CloseWindow();
     return 0;
 };
 
+void DrawMaze() {
+    for (int y = 0; y < MAZE_HEIGHT; y++) {
+        for (int x = 0; x < MAZE_WIDTH; x++) {
+            if (x == goalX && y == goalY) {
+                DrawRectangle(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, GOAL_COLOR);
+            } else {
+                DrawRectangle(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, maze[y][x] == 1 ? MAZE_COLOR : WHITE);
+            }
+        }
+    }
+    DrawCircle(playerX * CELL_SIZE + CELL_SIZE / 2, playerY * CELL_SIZE + CELL_SIZE / 2, 15, PLAYER_COLOR);
+};
+
 
 void HandlePlayerMovement() {  // // Handle player movement with arrow keys
-    if (IsKeyPressed(KEY_UP) && maze[player.y - 1][player.x] != 1) player.y--;  // // Up movement
-    if (IsKeyPressed(KEY_DOWN) && maze[player.y + 1][player.x] != 1) player.y++;  // // Down movement
-    if (IsKeyPressed(KEY_LEFT) && maze[player.y][player.x - 1] != 1) player.x--;  // // Left movement
-    if (IsKeyPressed(KEY_RIGHT) && maze[player.y][player.y + 1] != 1) player.x++;  // // Right movement
+    if (IsKeyPressed(KEY_UP) && maze[playerY - 1][playerX] == 0) playerY--;  // // Up movement
+    if (IsKeyPressed(KEY_DOWN) && maze[playerY + 1][playerX] == 0) playerY++;  // // Down movement
+    if (IsKeyPressed(KEY_LEFT) && maze[playerY][playerX - 1] == 0) playerX--;  // // Left movement
+    if (IsKeyPressed(KEY_RIGHT) && maze[playerY][playerX + 1] == 0) playerX++;  // // Right movement
 };
 
+void ShowLeaderboard() {
+    ClearBackground(BACKGROUND_COLOR);
+    DrawText("LEADERBOARD", SCREEN_WIDTH / 2 - 100, 50, 30, TEXT_COLOR);
 
-void DrawGameInfo() {
-       DrawText(TextFormat("Player Position: (%d, %d)", player.x, player.y), 10, 10, 20, TEXT_COLOR);
-    DrawText(TextFormat("Time: %.2f seconds", timer), 10, 30, 20, TEXT_COLOR);
+    int y = 100;
+    for (size_t i = 0; i < leaderboard.size(); i++) {
+        DrawText(TextFormat("%s - %.2f", leaderboard[i].name.c_str(), leaderboard[i].time), SCREEN_WIDTH / 2 - 100, y, 20, TEXT_COLOR);
+        y += 30;
+    }
+
+    DrawRectangle(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 50, 200, 40, BUTTON_COLOR);
+    DrawText("Retry", SCREEN_WIDTH / 2 - 30, SCREEN_HEIGHT - 40, 20, TEXT_COLOR);
 };
+
 
 void ResetGame() {  // // Reset game state
-    player = {1, 1};
+    playerX = 1;
+    playerY = 1;
     timer = 0.0f;
-    startScreen = true;
     gameWon = false;
+    startScreen = true;
+    showingLeaderboard = false;
   };
+
+void SaveLeaderboard() {
+    ofstream file("leaderboard.txt");
+    for (size_t i = 0; i < leaderboard.size(); i++) {
+        file << leaderboard[i].name << " " << leaderboard[i].time << endl;
+    }
+};
+
+
+void LoadLeaderboard() {
+    ifstream file("leaderboard.txt");
+    leaderboard.clear();
+    string name;
+    float time;
+    while (file >> name >> time) {
+        Player p;
+        p.name = name;
+        p.time = time;
+        leaderboard.push_back(p);
+    }
+};
