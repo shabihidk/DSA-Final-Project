@@ -303,6 +303,59 @@ class Stack_List{
     }
 };
 
+//hashmap
+
+class HashMap {
+private:
+    static const int SIZE = 10; // Size of the hash table
+    Node* table[SIZE];
+
+    int hashFunction(float time) {
+        return static_cast<int>(time) % SIZE; // Hash based on the time value
+    }
+
+public:
+    HashMap() {
+        for (int i = 0; i < SIZE; i++) {
+            table[i] = nullptr;
+        }
+    }
+
+    void insert(string name, float time) {
+        int index = hashFunction(time);
+        Node* newNode = new Node(time, name);
+
+        if (!table[index]) {
+            table[index] = newNode;
+        } else {
+            table[index].
+        }
+    }
+
+    void display() {
+        for (int i = 0; i < SIZE; ++i) {
+            std::cout << "Bucket " << i << ": ";
+            Node* current = table[i];
+            while (current) {
+                std::cout << "[" << current->name << ", " << current->time << "] -> ";
+                current = current->next;
+            }
+            std::cout << "nullptr" << std::endl;
+        }
+    }
+
+    ~HashMap() {
+        for (int i = 0; i < SIZE; ++i) {
+            Node* current = table[i];
+            while (current) {
+                Node* temp = current;
+                current = current->next;
+                delete temp;
+            }
+        }
+    }
+};
+
 // LEADERBOARD FUNCTIONS
 
 void LeaderboardDisplay(){
