@@ -308,19 +308,13 @@ class Stack_List{
 class HashMap {
 private:
     static const int SIZE = 10; // Size of the hash table
-    Linkedlist* table[SIZE];
+    Linkedlist table[SIZE];
 
     int hashFunction(float time) {
         return static_cast<int>(time) % SIZE; // Hash based on the time value
     }
 
 public:
-    HashMap() {
-        for (int i = 0; i < SIZE; i++) {
-            table[i] = nullptr;
-        }
-    }
-
     void insert(string name, float time) {
         int index = hashFunction(time);
         table[index].AddTail(time, name);
@@ -329,23 +323,43 @@ public:
     void display() {
         for (int i = 0; i < SIZE; ++i) {
             std::cout << "Bucket " << i << ": ";
-            Node* current = table[i];
-            while (current) {
-                std::cout << "[" << current->name << ", " << current->time << "] -> ";
-                current = current->next;
-            }
-            std::cout << "nullptr" << std::endl;
+            table[i].Display();
         }
     }
+};
 
-    ~HashMap() {
-        for (int i = 0; i < SIZE; ++i) {
-            Node* current = table[i];
-            while (current) {
-                Node* temp = current;
-                current = current->next;
-                delete temp;
+//graph yayayayayay
+class Graph {
+private:
+    struct Node {
+        string name;
+        float time;
+        vector<Node*> neighbors;
+    };
+
+    vector<Node> nodes;
+
+public:
+    void addNode(const string& name, float time) {
+        nodes.push_back({name, time, {}});
+    }
+
+    void addEdge(int fromIndex, int toIndex) {
+        if (fromIndex >= 0 && fromIndex < nodes.size() && toIndex >= 0 && toIndex < nodes.size()) {
+            nodes[fromIndex].neighbors.push_back(&nodes[toIndex]); 
+        }
+    }
+    void display() {
+        for (const auto& node : nodes) {
+            cout << "Node: " << node.name << ", Time: " << node.time << " -> ";
+            if (node.neighbors.empty()) {
+                cout << "No neighbors.";
+            } else {
+                for (const auto& neighbor : node.neighbors) {
+                    cout << neighbor->name << " ";
+                }
             }
+            cout << endl;
         }
     }
 };
