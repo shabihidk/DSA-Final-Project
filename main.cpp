@@ -1,5 +1,5 @@
 // Small maze with 1 for free space, 5 for visited/blocked spaces, and 9 for the exit.
-#include <raylib.h>
+//#include <raylib.h>
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -308,7 +308,7 @@ class Stack_List{
 class HashMap {
 private:
     static const int SIZE = 10; // Size of the hash table
-    Node* table[SIZE];
+    Linkedlist* table[SIZE];
 
     int hashFunction(float time) {
         return static_cast<int>(time) % SIZE; // Hash based on the time value
@@ -323,13 +323,7 @@ public:
 
     void insert(string name, float time) {
         int index = hashFunction(time);
-        Node* newNode = new Node(time, name);
-
-        if (!table[index]) {
-            table[index] = newNode;
-        } else {
-            table[index].
-        }
+        table[index].AddTail(time, name);
     }
 
     void display() {
