@@ -1,5 +1,5 @@
-// Small maze with 1 for free space, 5 for visited/blocked spaces, and 9 for the exit.
-//#include <raylib.h>
+
+#include <raylib.h>
 #include <iostream>
 #include <vector>
 #include <cstring>
@@ -75,12 +75,15 @@ class Linkedlist{
 
     void Display(){
         if(head == nullptr){
-            cerr << "Empty List" << endl;
+            DrawText("Empty List", 10, 10, 20, RED);
             return;
         }
         Node* temp = head;
-        while(temp){
-            cout << temp->name << " : " << temp->time << " seconds" << endl;
+        int y = 50;
+        while (temp) {
+            string displayText = temp->name + " : " + to_string(temp->time) + " seconds";
+            DrawText(displayText.c_str(), 10, y, 20, BLACK);
+            y += 30;
             temp = temp->next;
         }
     }
@@ -126,7 +129,10 @@ class Linkedlist{
         tail->next = newTail;
         tail = newTail;
     };
+
 };
+
+
 
 //QUEUE
 class Queue 
@@ -169,50 +175,18 @@ class Queue
             }
             return temp;
         }
-    }
-    void RemoveNode(const string& key) {
-    if (!list.GetHead()) {
-        cout << "List is empty, nothing to remove." << endl;
-        return;
-    }
-
-    Node* temp = list.GetHead();
-    Node* prev = nullptr;
-
-    while (temp && temp->name != key) {
-        prev = temp;
-        temp = temp->next;
-    }
-
-    if (!temp) {
-
-        cout << "Key not found in the list." << endl;
-        return;
-    }
-
-    if (temp == list.GetHead()) {
-        list.RemoveHead(); 
-    } else {
-        prev->next = temp->next;
-        if (temp == list.GetTail()) {
-
-            list.SetTail(prev);
-        }
-        delete temp;
-    }
-
-    cout << "Node with key \"" << key << "\" removed successfully." << endl;
-}
-
-    void Dequeue(){
-
-        if(list.GetHead() == NULL){
-            cout << "Queue is empty" << endl;
-            return;
-        }
-        cout << "Dequeued: " << list.GetHead()->name << endl;
-        list.RemoveHead();
     };
+
+     Node* Dequeue() {
+        if (list.GetHead() == NULL) {
+            std::cout << "Queue is empty" << std::endl;
+            return nullptr;
+        }
+        Node* dequeuedNode = list.GetHead();
+        std::cout << "Dequeued: " << dequeuedNode->name << std::endl;
+        list.RemoveHead();
+        return dequeuedNode;
+    }
 
     void Display(){
         list.Display();
@@ -305,119 +279,83 @@ class Stack_List{
 
 //hashmap
 
-class HashMap {
-private:
-    static const int SIZE = 10; // Size of the hash table
-    Linkedlist table[SIZE];
+// class HashMap {
+// private:
+//     static const int SIZE = 10; // Size of the hash table
+//     Linkedlist table[SIZE];
 
-    int hashFunction(float time) {
-        return static_cast<int>(time) % SIZE; // Hash based on the time value
-    }
+//     int hashFunction(float time) {
+//         return static_cast<int>(time) % SIZE; // Hash based on the time value
+//     }
 
-public:
-    void insert(string name, float time) {
-        int index = hashFunction(time);
-        table[index].AddTail(time, name);
-    }
+// public:
+//     void insert(string name, float time) {
+//         int index = hashFunction(time);
+//         table[index].AddTail(time, name);
+//     }
 
-    void display() {
-        for (int i = 0; i < SIZE; ++i) {
-            std::cout << "Bucket " << i << ": ";
-            table[i].Display();
-        }
-    }
-};
+//     void display() {
+//         for (int i = 0; i < SIZE; ++i) {
+//             std::cout << "Bucket " << i << ": ";
+//             table[i].Display();
+//         }
+//     }
+// };
 
-//graph yayayayayay
-class Graph {
-private:
-    struct Node {
-        string name;
-        float time;
-        vector<Node*> neighbors;
-    };
+// //graph yayayayayay
+// class Graph {
+// private:
+//     struct Node {
+//         string name;
+//         float time;
+//         vector<Node*> neighbors;
+//     };
 
-    vector<Node> nodes;
+//     vector<Node> nodes;
 
-public:
-    void addNode(const string& name, float time) {
-        nodes.push_back({name, time, {}});
-    }
+// public:
+//     void addNode(const string& name, float time) {
+//         nodes.push_back({name, time, {}});
+//     }
 
-    void addEdge(int fromIndex, int toIndex) {
-        if (fromIndex >= 0 && fromIndex < nodes.size() && toIndex >= 0 && toIndex < nodes.size()) {
-            nodes[fromIndex].neighbors.push_back(&nodes[toIndex]); 
-        }
-    }
-    void display() {
-        for (const auto& node : nodes) {
-            cout << "Node: " << node.name << ", Time: " << node.time << " -> ";
-            if (node.neighbors.empty()) {
-                cout << "No neighbors.";
-            } else {
-                for (const auto& neighbor : node.neighbors) {
-                    cout << neighbor->name << " ";
-                }
-            }
-            cout << endl;
-        }
-    }
-};
+//     void addEdge(int fromIndex, int toIndex) {
+//         if (fromIndex >= 0 && fromIndex< nodes.size() && toIndex >= 0 && toIndex < nodes.size()) {
+//             nodes[fromIndex].neighbors.push_back(&nodes[toIndex]); 
+//         }
+//     }
+//     void display() {
+//         for (const auto& node : nodes) {
+//             cout << "Node: " << node.name << ", Time: " << node.time << " -> ";
+//             if (node.neighbors.empty()) {
+//                 cout << "No neighbors.";
+//             } else {
+//                 for (const auto& neighbor : node.neighbors) {
+//                     cout << neighbor->name << " ";
+//                 }
+//             }
+//             cout << endl;
+//         }
+//     }
+// };
 
-// LEADERBOARD FUNCTIONS
+//LEADERBOARD FUNCTIONS
 
-void LeaderboardDisplay(){
-    ifstream file("leaderboard.txt");
+struct Player
+{
     string name;
     float time;
-    int choice;
-    cout << "choose data structure" << endl;
-    cout << "1. Queue" << endl;
-    cout << "2. Linked List" << endl;
-    cout << "3. Binary Search Tree" << endl;
-    cout << "4. Stack with Linked List" << endl;
-    cin >> choice;
-    switch(choice){
-    cout << "Enter your choice: ";
-    cin >> choice;
-    switch(choice){
-        case 1:
-            Queue q;
-            while(file >> name >> time){
-                q.Enqueue(time, name);
-            }
-            q.Display();
-            break;
-            
-        case 2:
-            Linkedlist l;
-            while(file >> name >> time){
-                l.AddHead(time, name);
-            }
-            l.Display();
-            break;
-            
-        case 3:
-            BinarySearchTree bst;
-            while(file >> name >> time){
-                bst.Insert(time, name);
-            }
-            bst.DOhelper();
-            break;
-        
-        case 4:
-        Stack_List sl;
-        while(file >> name >> time){
-                sl.push(time, name);
-            }
-        sl.display();
-        break;
-            
-        default:
-            cout << "Invalid choice" << endl;
-            break;
+    Player(string playerName, float playerTime) {
+        name = playerName;
+        time = playerTime;
     }
-}
+
+    // Default constructor (optional)
+    Player() : name(""), time(0.0f) {}
+};
+
+
+vector<Player> leaderboard;
+
 
 // STACK
 
@@ -477,11 +415,6 @@ class stack {
 
 // MAZE GAME FUNCTIONS - Shabih
 
-struct Player
-{
-    string name;
-    float time;
-};
 
 int maze[MAZE_HEIGHT][MAZE_WIDTH];
 
@@ -504,120 +437,9 @@ void MapDefine()
     file.close();
 };
 
-//  ---------------------- CODE NOT WORKING [ segmentation error ]---------------------- 
-
-// class Search {
-// private:
-//     vector<vector<int>> maze;
-//     stack s;
-//     int startX, startY, endX, endY;
-//     bool searchComplete;
-//     string statusMessage;
-
-// public:
-//     Search(vector<vector<int>> m) : maze(m), searchComplete(false){
-//         for (int i = 0; i < SIZE; ++i) {
-//             for (int j = 0; j < SIZE; ++j) {
-//                 if (maze[i][j] == 4) {
-//                     startX = i;
-//                     startY = j;
-//                 }
-//                 if (maze[i][j] == 9) {
-//                     endX = i;
-//                     endY = j;
-//                 }
-//             }
-//         }
-//         s.push({startX,startY});
-
-//     }
-
-//     void searchstep() 
-//     {
-//         if (s.empty())
-//         {
-//             searchComplete = true;
-//             cout << "Exit Not Found. \n";
-//             return; 
-//         }   
-//         while(!s.empty())
-//         {
-//             int x;
-//             x = s.topElement().first;
-
-//             int y = s.topElement().second;
-
-//             s.pop();
-
-//             if (x == endX && y == endY)
-//             {
-//                 searchComplete = true;
-//                 statusMessage = "Exit found at (" + to_string(x) + ", " + to_string(y) + ")";
-//                 return;
-//             };
-
-//             maze[x][y] = 5;
-
-//             if ( x-1 >= 0 && maze[x - 1][y] == 1) 
-//             {
-//                 s.push({x -1, y});
-//             };
-//             if (x + 1 < SIZE && maze[x + 1][y] == 1) 
-//             {
-//                 s.push({x + 1, y});
-//             };
-//             if (y - 1 >= 0 && maze[x][y - 1] == 1) 
-//             {
-//                 s.push({x, y - 1});
-//             };
-//             if (y + 1 < SIZE && maze[x][y + 1] == 1) 
-//             {
-//                 s.push({x, y + 1});
-//             };
-
-//         };
-
-//     };
-
-//     bool isSearchComplete()
-//     {
-//         return searchComplete;
-//     }
-
-    // void DrawMaze()
-    // {
-    //     BeginDrawing();
-    //     ClearBackground(RAYWHITE);
-
-    //     for (int i = 0; i < SIZE; ++i)
-    //     {
-    //         for (int j = 0; j < SIZE; ++j)
-    //         {
-    //             Color color;
-    //             switch (maze[i][j])
-    //             {   
-    //                 case 1: color = DARKGRAY; break;
-    //                 case 4: color = GREEN; break;
-    //                 case 9: color = RED; break;
-    //                 case 5: color = BLUE; break;
-    //                 default: color = LIGHTGRAY; break; 
-
-    //             }
-
-    //             DrawRectangle(j * TILE_SIZE, i * TILE_SIZE, TILE_SIZE, TILE_SIZE, color);
-
-    //         }
-    //     }
-
-    //     DrawText(statusMessage.c_str(), 10, SIZE * TILE_SIZE + 10, 20, DARKGRAY);
-
-    //     EndDrawing();
-    // };
-    
-
+bool gamePaused = false;
 int playerX = 1, playerY = 1;
 int goalX = MAZE_WIDTH - 2, goalY = MAZE_HEIGHT - 2;
-vector<Player> leaderboard;
 float timer = 0.0f;
 bool gameWon = false;
 bool startScreen = true;
@@ -627,46 +449,31 @@ bool showingLeaderboard = false;
 void ShowLeaderboard();
 void SaveLeaderboard();
 void LoadLeaderboard();
+void LeaderboardDisplay();
 
 void DrawMaze();
 void HandlePlayerMovement();
 void ResetGame();
 
 int main() {
-    
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Maze Search Visualization");
     SetTargetFPS(50);
 
     MapDefine();
-    
     LoadLeaderboard();
 
-
-    while(!WindowShouldClose())
-    {   
+    while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
 
+        // Main game flow
         if (startScreen) {
             DrawText("MAZE GAME", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 40, TEXT_COLOR);
             DrawText("Press ENTER to Start", SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2, 20, TEXT_COLOR);
             if (IsKeyPressed(KEY_ENTER)) startScreen = false;
-        } else if(showingLeaderboard) 
-        {
-            ShowLeaderboard();
-            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-            {
-                Vector2 mousePos = GetMousePosition();
-                if (mousePos.x > SCREEN_WIDTH / 2 - 100 && mousePos.x < SCREEN_WIDTH / 2 + 100 &&
-                    mousePos.y > SCREEN_HEIGHT - 50 && mousePos.y < SCREEN_HEIGHT - 10) {
-                    ResetGame();
-                }
-            };
-        }
-
-        else if (gameWon)
-        {
-        DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SCREEN_COLOR);
+        } 
+        else if (gameWon) {
+            DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SCREEN_COLOR);
             DrawText("YOU WON!", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 30, WHITE);
             DrawText("Enter your name:", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 20, WHITE);
 
@@ -686,25 +493,27 @@ int main() {
 
                 SaveLeaderboard();
                 showingLeaderboard = true;
+                gamePaused = true;  // Pause the game to show leaderboard
             }
+
             DrawText(playerName, SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 30, 20, YELLOW);
-        } else {
+        } 
+        else if (showingLeaderboard) {
+            LeaderboardDisplay();
+        }
+        else {
             timer += GetFrameTime();
             HandlePlayerMovement();  
             DrawMaze();
             DrawText(TextFormat("Time: %.2f seconds", timer), 10, 10, 20, TEXT_COLOR);
         }
-        
-   EndDrawing();
-   };
 
+        EndDrawing();
+    }
 
-CloseWindow();
-
-
+    CloseWindow();  // Close the window properly
     return 0;
-};
-
+}
 void DrawMaze() {
     for (int y = 0; y < MAZE_HEIGHT; y++) {
         for (int x = 0; x < MAZE_WIDTH; x++) {
@@ -724,21 +533,22 @@ void HandlePlayerMovement() {  // // Handle player movement with arrow keys
     if (IsKeyPressed(KEY_DOWN) && maze[playerY + 1][playerX] == 0) playerY++;  // // Down movement
     if (IsKeyPressed(KEY_LEFT) && maze[playerY][playerX - 1] == 0) playerX--;  // // Left movement
     if (IsKeyPressed(KEY_RIGHT) && maze[playerY][playerX + 1] == 0) playerX++;  // // Right movement
+    if (playerX == goalX && playerY == goalY) gameWon = true;
 };
 
-void ShowLeaderboard() {
-    ClearBackground(BACKGROUND_COLOR);
-    DrawText("LEADERBOARD", SCREEN_WIDTH / 2 - 100, 50, 30, TEXT_COLOR);
+// void ShowLeaderboard() {
+//     ClearBackground(BACKGROUND_COLOR);
+//     DrawText("LEADERBOARD", SCREEN_WIDTH / 2 - 100, 50, 30, TEXT_COLOR);
 
-    int y = 100;
-    for (size_t i = 0; i < leaderboard.size(); i++) {
-        DrawText(TextFormat("%s - %.2f", leaderboard[i].name.c_str(), leaderboard[i].time), SCREEN_WIDTH / 2 - 100, y, 20, TEXT_COLOR);
-        y += 30;
-    }
+//     int y = 100;
+//     for (size_t i = 0; i < leaderboard.size(); i++) {
+//         DrawText(TextFormat("%s - %.2f", leaderboard[i].name.c_str(), leaderboard[i].time), SCREEN_WIDTH / 2 - 100, y, 20, TEXT_COLOR);
+//         y += 30;
+//     }
 
-    DrawRectangle(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 50, 200, 40, BUTTON_COLOR);
-    DrawText("Retry", SCREEN_WIDTH / 2 - 30, SCREEN_HEIGHT - 40, 20, TEXT_COLOR);
-};
+//     DrawRectangle(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 50, 200, 40, BUTTON_COLOR);
+//     DrawText("Retry", SCREEN_WIDTH / 2 - 30, SCREEN_HEIGHT - 40, 20, TEXT_COLOR);
+// };
 
 
 void ResetGame() {  // // Reset game state
@@ -748,15 +558,8 @@ void ResetGame() {  // // Reset game state
     gameWon = false;
     startScreen = true;
     showingLeaderboard = false;
+    gamePaused = false;
   };
-
-void SaveLeaderboard() {
-    ofstream file("leaderboard.txt");
-    for (size_t i = 0; i < leaderboard.size(); i++) {
-        file << leaderboard[i].name << " " << leaderboard[i].time << endl;
-    }
-};
-
 
 void LoadLeaderboard() {
     ifstream file("leaderboard.txt");
@@ -769,4 +572,98 @@ void LoadLeaderboard() {
         p.time = time;
         leaderboard.push_back(p);
     }
+
+     file.close();
 };
+
+void SaveLeaderboard() {
+    ofstream file("leaderboard.txt");
+    for (const auto& p : leaderboard) {
+        file << p.name << " " << p.time << endl;
+    }
+    file.close();
+}
+
+void LeaderboardDisplay() {
+    
+
+    // Read leaderboard data from the file into an array
+    ifstream file("leaderboard.txt");
+    if (!file) {
+        cerr << "Error opening file!" << endl;
+        return;
+    }
+
+    string name;
+    float time;
+    while (file >> name >> time) {
+        leaderboard.emplace_back(name, time);}
+    file.close();
+
+    const int screenWidth = 800;
+    const int screenHeight = 600;
+
+    InitWindow(screenWidth, screenHeight, "Leaderboard Display");
+    SetTargetFPS(60);
+
+    // Button rectangles
+    Rectangle queueButton = {100, 100, 200, 50};
+    Rectangle linkedListButton = {100, 200, 200, 50};
+    Rectangle bstButton = {100, 300, 200, 50};
+    Rectangle stackButton = {100, 400, 200, 50};
+
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+
+        // Draw buttons
+        DrawRectangleRec(queueButton, LIGHTGRAY);
+        DrawText("Queue", queueButton.x + 50, queueButton.y + 10, 20, BLACK);
+
+        DrawRectangleRec(linkedListButton, LIGHTGRAY);
+        DrawText("Linked List", linkedListButton.x + 10, linkedListButton.y + 10, 20, BLACK);
+
+        DrawRectangleRec(bstButton, LIGHTGRAY);
+        DrawText("Binary Search Tree", bstButton.x + 10, bstButton.y + 10, 20, BLACK);
+
+        DrawRectangleRec(stackButton, LIGHTGRAY);
+        DrawText("Stack", stackButton.x + 50, stackButton.y + 10, 20, BLACK);
+
+        // Handle button clicks
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Vector2 mousePoint = GetMousePosition();
+
+            if (CheckCollisionPointRec(mousePoint, queueButton)) {
+                Queue q;
+                for (const auto& entry : leaderboard) {
+                    q.Enqueue(entry.time, entry.name);
+                }
+                q.Display();
+            } else if (CheckCollisionPointRec(mousePoint, linkedListButton)) {
+                Linkedlist l;
+                for (const auto& entry : leaderboard) {
+                    l.AddHead(entry.time, entry.name);
+                }
+                l.Display();
+            } else if (CheckCollisionPointRec(mousePoint, bstButton)) {
+                BinarySearchTree bst;
+                for (const auto& entry : leaderboard) {
+                    bst.Insert(entry.time, entry.name);
+                }
+                bst.DOhelper();
+            } else if (CheckCollisionPointRec(mousePoint, stackButton)) {
+                Stack_List sl;
+                for (const auto& entry : leaderboard) {
+                    sl.push(entry.time, entry.name);
+                }
+                sl.display();
+            }
+        }
+
+        EndDrawing();
+    }
+
+    CloseWindow();
+};
+
+
