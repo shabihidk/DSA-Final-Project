@@ -5,6 +5,10 @@
 #include <cstring>
 #include <fstream>
 #include <algorithm>
+#include<unistd.h>
+
+
+
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
@@ -30,91 +34,109 @@ const Color GOAL_COLOR = RED;
 
 // LINKED LIST
 
-struct Node{
-    string name;
+
+class Node {
+public:
     float time;
+    std::string name;
     Node* next;
 
-    Node(float t, string n) :  name(n), time(t), next(nullptr) {};
+    Node(float t, const std::string& n) : time(t), name(n), next(nullptr) {}
 };
 
-class Linkedlist{ 
-    private:
-
+class Linkedlist { 
+private:
     Node* head = nullptr;
     Node* tail = nullptr;
 
-    public:
-
-    void AddHead(float time, string name){
-        Node* newNode = new Node(time,name);
-        if(head == nullptr)
-        {
+public:
+    void AddHead(float time, std::string name) {
+        Node* newNode = new Node(time, name);
+        if (head == nullptr) {
             head = tail = newNode;
-            tail->next = head;
-        }
-        else 
-        {
+            tail->next = head;  // Circular link for the last node
+        } else {
             newNode->next = head;
             head = newNode;
         }
     };
 
-    void AddTail(float time, string name){
+    void AddTail(float time, std::string name) {
         Node* newNode = new Node(time, name);
 
-        if(!tail){
+        if (!tail) {
             head = newNode;
-        }
-        else{
-           
+        } else {
             tail->next = newNode;
         }
-            tail = newNode;
+        tail = newNode;
+        tail->next = head;  // Ensure circular linking to the head
     }
 
-    void Display(){
-        if(head == nullptr){
-            DrawText("Empty List", 10, 10, 20, RED);
-            return;
-        }
-        Node* temp = head;
-        int y = 50;
-        while (temp) {
-            string displayText = temp->name + " : " + to_string(temp->time) + " seconds";
-            DrawText(displayText.c_str(), 10, y, 20, BLACK);
-            y += 30;
-            temp = temp->next;
-        }
-    }
+    void Display() {
+        // Initialize the window for displaying the leaderboard
+        InitWindow(800, 600, "Leaderboard");
+        SetTargetFPS(60);  // Limit to 60 frames per second
 
-    Node* GetHead() const
-    {
-        return head;
+        // Main loop to display the linked list
+        while (!WindowShouldClose()) {
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+
+            // Display the title at the top of the window
+            DrawText("Leaderboard", 350, 20, 30, DARKGRAY);
+
+            // Check if the list is empty
+            if (head == nullptr) {
+                DrawText("Empty List", 10, 50, 20, RED);
+            } else {
+                // Traverse through the linked list and display the entries
+                Node* temp = head;
+                int y = 50;  // Starting y-position for text
+                bool first = true; // Used to check if we are looping back to head
+                while (temp) {
+                    std::string displayText = temp->name + " : " + std::to_string(temp->time) + " seconds";
+                    DrawText(displayText.c_str(), 10, y, 20, BLACK);
+                    y += 30;  // Increase y-position for the next entry
+
+                    temp = temp->next;
+
+                    // Break if we have circled back to the head node (in case of circular list)
+                    if (temp == head && !first) break;
+                    first = false; // Set to false after the first loop to allow circular checking
+                }
+            }
+
+            EndDrawing();
+        }
+
+        CloseWindow();  // Close the window after the loop ends
     };
 
-     Node* GetTail() const {
+    Node* GetHead() const {
+        return head;
+    }
+
+    Node* GetTail() const {
         return tail;
     }
 
-   void RemoveHead() {
+    void RemoveHead() {
         if (!head) return;
 
         Node* temp = head;
         head = head->next;
-        
-        delete temp;
-    };
 
-    void RemoveTail()
-    {
-        if(!head) return;
+        delete temp;
+    }
+
+    void RemoveTail() {
+        if (!head) return;
 
         Node* temp2 = tail;
         Node* temp = head;
-        
-        while(temp->next != tail)
-        {
+
+        while (temp->next != tail) {
             temp = temp->next;
         }
 
@@ -122,18 +144,13 @@ class Linkedlist{
         tail = temp->next;
 
         delete temp2;
-        
-    };
+    }
 
     void SetTail(Node* newTail) {
         tail->next = newTail;
         tail = newTail;
-    };
-
+    }
 };
-
-
-
 //QUEUE
 class Queue 
 {
@@ -190,6 +207,7 @@ class Queue
 
     void Display(){
         list.Display();
+        sleep(10);
     };
 };
 
@@ -274,6 +292,7 @@ class Stack_List{
 
     void display(){
         s.Display();
+        sleep(10);
     }
 };
 
@@ -448,7 +467,6 @@ int main() {
             DrawText("MAZE GAME", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 80, 40, TEXT_COLOR);
             DrawText("Press ENTER to Start", SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2 - 20, 20, TEXT_COLOR);
             DrawRectangle(SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2 + 20, 240, 40, BUTTON_COLOR);
-            DrawText("Use A* Algorithm", SCREEN_WIDTH / 2 - 90, SCREEN_HEIGHT / 2 + 30, 20, TEXT_COLOR);
 
             if (IsKeyPressed(KEY_ENTER)) startScreen = false;
 
@@ -537,6 +555,28 @@ void ResetGame() {
     gamePaused = false;
 }
 
+// void LoadLeaderboard() {
+//     ifstream file("leaderboard.txt");
+//     leaderboard.clear();
+//     string name;
+//     float time;
+//     while (file >> name >> time) {
+//         Player p;
+//         p.name = name;
+//         p.time = time;
+//         leaderboard.push_back(p);
+//     }
+
+//     file.close();
+// }
+
+void SaveLeaderboard() {
+    ofstream file("leaderboard.txt");
+    for (size_t i = 0; i < leaderboard.size(); i++) {
+        file << leaderboard[i].name << " " << leaderboard[i].time << endl;
+    }
+}
+
 void LoadLeaderboard() {
     ifstream file("leaderboard.txt");
     leaderboard.clear();
@@ -548,110 +588,87 @@ void LoadLeaderboard() {
         p.time = time;
         leaderboard.push_back(p);
     }
-
-    file.close();
 }
 
-void SaveLeaderboard() {
-    ofstream file("leaderboard.txt");
-    for (const auto& p : leaderboard) {
-        file << p.name << " " << p.time << endl;
-    }
-    file.close();
-}
-
-void ShowLeaderboard() {
-    ClearBackground(BACKGROUND_COLOR);
-    DrawText("LEADERBOARD", SCREEN_WIDTH / 2 - 100, 50, 30, TEXT_COLOR);
-
-    int y = 100;
-    for (size_t i = 0; i < leaderboard.size(); i++) {
-        DrawText(TextFormat("%s - %.2f", leaderboard[i].name.c_str(), leaderboard[i].time), SCREEN_WIDTH / 2 - 100, y, 20, TEXT_COLOR);
-        y += 30;
-    }
-
-    DrawRectangle(SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT - 50, 200, 40, BUTTON_COLOR);
-    DrawText("Retry", SCREEN_WIDTH / 2 - 30, SCREEN_HEIGHT - 40, 20, TEXT_COLOR);
-}
 
 void LeaderboardDisplay() {
-    // Button rectangles for options like Queue, Linked List, etc.
-    Rectangle queueButton = {100, 100, 200, 50};
-    Rectangle linkedListButton = {100, 200, 200, 50};
-    Rectangle bstButton = {100, 300, 200, 50};
-    Rectangle stackButton = {100, 400, 200, 50};
-    Rectangle returnButton = {300, 500, 200, 50}; // Return button to go back to the game
 
-    // Maintain the current display state (do not exit immediately)
-    bool exitLeaderboard = false;
+    // Set up window
+    InitWindow(800, 600, "Leaderboard Display");
 
-    while (!WindowShouldClose() && !exitLeaderboard) {  // Keep the loop running
+    // Variable to track user selection
+    char selectedOption = '\0';
+
+    // Declare all data structures outside of the switch-case to avoid initialization issues
+    Queue q;
+    Linkedlist l;
+    BinarySearchTree bst;
+    Stack_List sl;
+
+    // Main loop
+    while (!WindowShouldClose()) {
         BeginDrawing();
         ClearBackground(RAYWHITE);
 
-        // Draw buttons
-        DrawRectangleRec(queueButton, LIGHTGRAY);
-        DrawText("Queue", queueButton.x + 50, queueButton.y + 10, 20, BLACK);
+        // Display options
+        DrawText("Select an option:", 100, 100, 20, BLACK);
+        DrawText("1 - Queue", 100, 150, 20, BLACK);
+        DrawText("2 - Linked List", 100, 200, 20, BLACK);
+        DrawText("3 - Binary Search Tree (BST)", 100, 250, 20, BLACK);
+        DrawText("4 - Stack", 100, 300, 20, BLACK);
 
-        DrawRectangleRec(linkedListButton, LIGHTGRAY);
-        DrawText("Linked List", linkedListButton.x + 10, linkedListButton.y + 10, 20, BLACK);
+        // Input for option selection
+        DrawText("Enter a number (1-4) and press Enter:", 100, 350, 20, BLACK);
 
-        DrawRectangleRec(bstButton, LIGHTGRAY);
-        DrawText("Binary Search Tree", bstButton.x + 10, bstButton.y + 10, 20, BLACK);
+        // Check for key input (1 to 4)
+        if (IsKeyPressed(KEY_ONE)) selectedOption = '1';
+        if (IsKeyPressed(KEY_TWO)) selectedOption = '2';
+        if (IsKeyPressed(KEY_THREE)) selectedOption = '3';
+        if (IsKeyPressed(KEY_FOUR)) selectedOption = '4';
 
-        DrawRectangleRec(stackButton, LIGHTGRAY);
-        DrawText("Stack", stackButton.x + 50, stackButton.y + 10, 20, BLACK);
+        // Handle the selected option with switch case
+        if (selectedOption != '\0') {
+            switch (selectedOption) {
+                case '1':
+                    // Initialize Queue
+                    for (const auto& entry : leaderboard) {
+                        q.Enqueue(entry.time, entry.name);
+                    }
+                    q.Display();
+                    break;
+                case '2':
+                    // Initialize Linked List
+                    for (size_t x = 0; x < leaderboard.size(); x++)
+                        l.AddHead(leaderboard[x].time , leaderboard[x].name);
+                    l.Display();
+                    break;
 
-        DrawRectangleRec(returnButton, LIGHTGRAY);
-        DrawText("Return to Game", returnButton.x + 10, returnButton.y + 10, 20, BLACK);
-
-        // Handle button clicks
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            Vector2 mousePoint = GetMousePosition();
-
-            // Handle Queue Button Click
-            if (CheckCollisionPointRec(mousePoint, queueButton)) {
-                Queue q;
-                for (const auto& entry : leaderboard) {
-                    q.Enqueue(entry.time, entry.name);
-                }
-                q.Display();  // Make sure to call the display method
-            } 
-            // Handle Linked List Button Click
-            else if (CheckCollisionPointRec(mousePoint, linkedListButton)) {
-                Linkedlist l;
-                for (const auto& entry : leaderboard) {
-                    l.AddHead(entry.time, entry.name);
-                }
-                l.Display();  // Display the linked list
-            } 
-            // Handle BST Button Click
-            else if (CheckCollisionPointRec(mousePoint, bstButton)) {
-                BinarySearchTree bst;
-                for (const auto& entry : leaderboard) {
-                    bst.Insert(entry.time, entry.name);
-                }
-                bst.DOhelper();  // This will print the BST in descending order
-            } 
-            // Handle Stack Button Click
-            else if (CheckCollisionPointRec(mousePoint, stackButton)) {
-                Stack_List sl;
-                for (const auto& entry : leaderboard) {
-                    sl.push(entry.time, entry.name);
-                }
-                sl.display();  // Display the stack
-            } 
-            // Handle Return Button Click
-            else if (CheckCollisionPointRec(mousePoint, returnButton)) {
-                exitLeaderboard = true;  // Set to exit leaderboard screen
-                showingLeaderboard = false;  // Stop showing the leaderboard
-                gamePaused = false; // Continue the game
+                case '3':
+                    // Initialize Binary Search Tree (BST)
+                    for (size_t x = 0; x < leaderboard.size(); x++)
+                        bst.Insert(leaderboard[x].time , leaderboard[x].name);
+                    bst.DOhelper();
+                    break;
+                case '4':
+                    // Initialize Stack
+                    for (const auto& entry : leaderboard) {
+                        sl.push(entry.time, entry.name);
+                    }
+                    sl.display();
+                    break;
+                default:
+                    std::cout << "Invalid option selected.\n";
+                    break;
             }
+            selectedOption = '\0'; // Reset after selection
         }
 
         EndDrawing();
     }
+
+    CloseWindow();  // Close window and cleanup
 }
+
 
 
 
