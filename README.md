@@ -1,11 +1,26 @@
+# Raylib C++ Starter Template
 
+Raylib C++ Starter Template for Visual Studio Code on Windows.
 
-# DSA-Final-Project  
-This project marks the culmination of my 3rd semester at GIKI and represents the collaborative efforts of myself and **Syed Ghazi Abbas**.  
+This demo project contains a bouncing ball raylib example program.
 
-Our project focuses on applying the principles of **Data Structures and Algorithms (DSA)** to solve a challenging real-world problem, showcasing our skills in computational thinking, algorithm design, and efficient data handling.  
+It works with raylib version 4.5.
+Tested on both Windows 10 and Windows 11.
 
-You can stay updated on our progress, see the project documentation, and access additional details by following this link:  
-[**DSA Project Documentation**](https://docs.google.com/document/d/1yR0oLGI8s5_rXbPZuw3xFinON_bgZq7u/edit?usp=sharing&ouid=104382723427590987435&rtpof=true&sd=true)  
+# Video Tutorial
 
+<p align="center">
+  <img src="preview.jpg" alt="" width="800">
+</p>
+
+<p align="center">
+🎥 <a href="https://www.youtube.com/watch?v=PaAcVk5jUd8">Video Tutorial on YouTube</a>
+</p>
+
+<br>
+<br>
+<p align="center">
+| 📺 <a href="https://www.youtube.com/channel/UC3ivOTE5EgpmF2DHLBmWIWg">My YouTube Channel</a>
+| 🌍 <a href="http://www.educ8s.tv">My Website</a> | <br>
+</p>
 
