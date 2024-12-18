@@ -1,4 +1,3 @@
-Here's an updated version of the README tailored specifically for the **A*Mazer** project, which is a **Maze Game** made using **Raylib** in C++:
 
 ---
 
