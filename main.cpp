@@ -24,6 +24,10 @@ const Color GOAL_COLOR = RED;
 
 int maze[MAZE_HEIGHT][MAZE_WIDTH];
 
+vector<pair<int, int>> aStarPath;
+size_t aStarIndex = 0;
+
+
 struct Player {
     string name;
     float time;
@@ -269,12 +273,21 @@ void LeaderboardDisplay() {
     CloseWindow();
 }
 
+struct NodeA {
+    int x, y;
+    float gCost, hCost;
+    Node* parent;
+    float fCost() const { return gCost + hCost; }
+};
+
 void MapDefine();
 void SaveLeaderboard();
 void LoadLeaderboard();
 void DrawMaze();
 void HandlePlayerMovement();
 void ResetGame();
+
+void RunAStar();
 
 bool gamePaused = false;
 int playerX = 1, playerY = 1;
@@ -284,6 +297,7 @@ bool gameWon = false;
 bool startScreen = true;
 char playerName[20] = "";
 bool showingLeaderboard = false;
+bool usingAStar = false;
 
 int main() {
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Maze Game");
@@ -299,12 +313,37 @@ int main() {
         if (startScreen) {
             DrawText("MAZE GAME", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 80, 40, TEXT_COLOR);
             DrawText("Press ENTER to Start", SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2 - 20, 20, TEXT_COLOR);
+            DrawRectangle(SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2 + 20, 240, 40, BUTTON_COLOR);
+            DrawText("Use A* Algorithm", SCREEN_WIDTH / 2 - 90, SCREEN_HEIGHT / 2 + 30, 20, TEXT_COLOR);
 
             if (IsKeyPressed(KEY_ENTER)) startScreen = false;
+
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                Vector2 mousePos = GetMousePosition();
+                if (mousePos.x > SCREEN_WIDTH / 2 - 120 && mousePos.x < SCREEN_WIDTH / 2 + 120 &&
+                    mousePos.y > SCREEN_HEIGHT / 2 + 20 && mousePos.y < SCREEN_HEIGHT / 2 + 60) {
+                    usingAStar = true;
+                    startScreen = false;
+                    RunAStar();
+                }
+            }
         } else if (gameWon) {
             DrawRectangle(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, WIN_SCREEN_COLOR);
             DrawText("YOU WON!", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 30, WHITE);
-
+            if (usingAStar) {
+                strcpy(playerName, "A*Mazer");
+                Player newPlayer;
+                newPlayer.name = playerName;
+                newPlayer.time = timer;
+                leaderboard.push_back(newPlayer);
+                sort(leaderboard.begin(), leaderboard.end(), [](const Player &a, const Player &b) {
+                    return a.time < b.time;
+                });
+                SaveLeaderboard();
+                showingLeaderboard = true;
+                LeaderboardDisplay();}
+            else
+            {
             DrawText("Enter your name:", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2, 20, WHITE);
             int key = GetCharPressed();
             if (key > 0 && strlen(playerName) < 19) playerName[strlen(playerName)] = (char)key;
@@ -322,10 +361,24 @@ int main() {
                 showingLeaderboard = true;
                 LeaderboardDisplay();
             }
+            
             DrawText(playerName, SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 + 30, 20, YELLOW);
-        } else {
+            }
+         } else {
             timer += GetFrameTime();
-            HandlePlayerMovement();
+
+            if (usingAStar) {
+                if (aStarIndex < aStarPath.size()) {
+                    playerX = aStarPath[aStarIndex].first;
+                    playerY = aStarPath[aStarIndex].second;
+                    aStarIndex++;
+                } else {
+                    gameWon = true;
+                }
+            } else {
+                HandlePlayerMovement();
+            }
+
             DrawMaze();
             DrawText(TextFormat("Time: %.2f seconds", timer), 10, 10, 20, TEXT_COLOR);
         }
@@ -353,6 +406,7 @@ void MapDefine() {
 
     file.close();
 }
+
 
 void DrawMaze() {
     for (int y = 0; y < MAZE_HEIGHT; y++) {
@@ -404,4 +458,40 @@ void LoadLeaderboard() {
     }
 
     file.close();
+}
+
+void RunAStar() {
+    
+    auto heuristic = [](int x1, int y1, int x2, int y2) {
+        return abs(x1 - x2) + abs(y1 - y2);
+    };
+
+    
+    vector<pair<int, int>> openList = {{playerX, playerY}};
+    vector<pair<int, int>> visited;
+
+    while (!openList.empty()) {
+        pair<int, int> current = openList.back();
+        openList.pop_back();
+
+        // If we've reached the goal
+        if (current.first == goalX && current.second == goalY) {
+            aStarPath.push_back(current);  // Add goal to path
+            break;
+        }
+
+        visited.push_back(current);  // Mark the current position as visited
+
+        // Check neighbors (up, down, left, right)
+        for (auto& dir : vector<pair<int, int>>{{0, -1}, {0, 1}, {-1, 0}, {1, 0}}) {
+            int newX = current.first + dir.first;
+            int newY = current.second + dir.second;
+
+            // If the neighbor is within bounds and not a wall, and not visited
+            if (newX >= 0 && newY >= 0 && newX < MAZE_WIDTH && newY < MAZE_HEIGHT &&
+                maze[newY][newX] == 0 && find(visited.begin(), visited.end(), make_pair(newX, newY)) == visited.end()) {
+                openList.push_back({newX, newY});
+            }
+        }
+    }
 }
