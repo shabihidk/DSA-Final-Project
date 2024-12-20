@@ -1,16 +1,28 @@
 // Small maze with 1 for free space, 5 for visited/blocked spaces, and 9 for the exit.
 
-#include<raylib.h> 
+#include <raylib.h> 
 #include <iostream>
 #include <vector>
 #include <cstring>
+#include <fstream>
 
 
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
+const int MAZE_WIDTH = 20;
+const int MAZE_HEIGHT = 15;
+const int CELL_SIZE = 40;
 const int TILE_SIZE = 50;
-static const int MAX_SIZE = 100;
+
+
 
 using namespace std;
 
+const Color BACKGROUND_COLOR = (Color){ 200, 230, 201, 255 };  // Light pastel green
+const Color MAZE_COLOR = DARKGREEN;
+const Color PLAYER_COLOR = BLUE;
+const Color TEXT_COLOR = BLACK;
+const Color GOAL_COLOR = RED;
 
 
 constexpr int SIZE = 5;
@@ -61,7 +73,7 @@ class Linkedlist{
 class stack {
     private:
     
-    pair<int, int> arr[MAX_SIZE];
+    pair<int, int> arr[SIZE * SIZE];
     int top;
 
 
@@ -73,7 +85,7 @@ class stack {
 
     void push(pair<int,int> value)
     {
-        if (top >= MAX_SIZE - 1)
+        if (top >= SIZE * SIZE - 1)
         {
             cout << "Stack Full!" << endl;
             return;
@@ -222,10 +234,24 @@ public:
     
 };
 
+int playerX = 1, playerY = 1;
+int goalX = SIZE - 2, goalY = SIZE - 2;
+float timer = 0.0f;
+bool gameWon = false;
+bool startScreen = true;
+char playerName[20] = "";
+
+void MapDefine();
+void DrawMaze();
+void HandlePlayerMovement();
+void ResetGame();
+
 int main() {
     
     InitWindow(SIZE * TILE_SIZE, SIZE * TILE_SIZE, "Maze Search Visualization");
     SetTargetFPS(10);
+
+    MapDefine();
 
     vector<vector<int>> maze =
     { 
@@ -238,26 +264,39 @@ int main() {
 
 
 Search search(maze);
-search.searchstep();
 
-bool searchComplete = false;
 
 while(!WindowShouldClose())
 {
-    if(!searchComplete)
+    BeginDrawing();
+    ClearBackground();
+
+    if(startScreen)
+
     {
+        DrawText("MAZE GAME", SCREEN_WIDTH / 2 - 100, SCREEN_HEIGHT / 2 - 50, 40, TEXT_COLOR);
+            DrawText("Press ENTER to Start", SCREEN_WIDTH / 2 - 120, SCREEN_HEIGHT / 2, 20, TEXT_COLOR);
+            if (IsKeyPressed(KEY_ENTER)) startScreen = false;  
+        } else {
+            timer += GetFrameTime();  
+            HandlePlayerMovement();
+            DrawMaze();               
+            DrawText(TextFormat("Time: %.2f seconds", timer), 10, 10, 20, TEXT_COLOR); 
+        }
+
         search.searchstep();
 
         if (search.isSearchComplete())
         {
-            searchComplete = true;
+            search.DrawMaze();
         };
-    };
-    search.DrawMaze();
-};
+    
+   EndDrawing();
+   };
+
 
 CloseWindow();
 
 
     return 0;
-}
+};
